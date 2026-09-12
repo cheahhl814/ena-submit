@@ -30,6 +30,7 @@ battle-test-report.md
 preflight.md
 preflight_evidence.txt
 tool-inventory.json
+params.json
 
 # macOS
 .DS_Store
