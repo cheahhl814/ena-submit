@@ -151,7 +151,8 @@ ena-submit/
 ├── battle-test/            # Phase sub-skill
 ├── bin/
 │   └── skill-update-check.py  # Self-update check (pixi run update-check)
-└── test_smoke.py             # Structural smoke tests
+└── bin/
+    └── scaffold-render.py     # Reproducibility — re-render the skill from params.json
 ```
 
 ## 🔒 Hard guarantees
