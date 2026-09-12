@@ -1,6 +1,6 @@
 ---
-name: seqsubmit-agent-qc
-description: Phase 3 of seqsubmit-agent. Parses the per-mode output directory (reads/ or metagenomic_assemblies/ or mags/, bins/) and `multiqc/`, collects accession numbers, MAGs/bins manifest, coverage files, and the MultiQC report. Writes `seqsubmit-report.md` (the per-submission audit report) and `qc-summary.md` (the machine-readable summary).
+name: ena-submit-qc
+description: Phase 3 of ena-submit. Parses the per-mode output directory (reads/ or metagenomic_assemblies/ or mags/, bins/) and `multiqc/`, collects accession numbers, MAGs/bins manifest, coverage files, and the MultiQC report. Writes `seqsubmit-report.md` (the per-submission audit report) and `qc-summary.md` (the machine-readable summary).
 version: 1.0.0
 updated: "2026-09-12"
 triggers:
@@ -30,7 +30,7 @@ Use this skill if:
 
 Do NOT use this skill if:
 
-- The pipeline run failed — route to `debug/seqsubmit-agent-debug` first.
+- The pipeline run failed — route to `debug/ena-submit-debug` first.
 
 ## 0. Inputs / Outputs contract
 
@@ -38,7 +38,7 @@ Do NOT use this skill if:
 
 | Path | Source | Required? |
 | --- | --- | --- |
-| `$RUN_DIR/run-summary.md` | build/seqsubmit-agent-runner | yes |
+| `$RUN_DIR/run-summary.md` | build/ena-submit-runner | yes |
 | `$RUN_DIR/outdir/<mode>/` | build | yes (mode-specific) |
 | `$RUN_DIR/outdir/multiqc/` | build | no (but aggregated when present) |
 
@@ -71,7 +71,7 @@ This sub-skill has **3 stop points** (SP1–SP3). Each fires only when the evide
 
 ## Description
 
-This skill is the **output (qc)** phase of the seqsubmit-agent pipeline. It computes evidence and emits a machine-readable artifact plus a human-readable audit.
+This skill is the **output (qc)** phase of the ena-submit pipeline. It computes evidence and emits a machine-readable artifact plus a human-readable audit.
 
 ## Prerequisites
 
@@ -117,7 +117,7 @@ ls -la $OUTDIR/$MODE/
 
 Run:        $RUN_DIR
 Generated:  <ISO8601>
-Pipeline:   seqsubmit-agent v1.0.0
+Pipeline:   ena-submit v1.0.0
 
 ## Overall verdict
 
@@ -168,8 +168,8 @@ When this sub-skill fails or produces unexpected output, match the failure again
 | `disk full` | Less than recommended disk space | Free up disk or move `$RUN_DIR` to a larger disk. |
 | `Permission denied` | Wrong ownership | `chown -R $USER:$USER $RUN_DIR`. |
 | `no such file or directory` | Input path wrong | Verify the path with `ls -la`. |
-| `verdict: BEHIND-BY-N` from `pixi run update-check` | Upstream `github.com/cheahhl814/seqsubmit-agent` is ahead of the deployed copy | Re-deploy per AGENTS.md §4a: `rsync -a --exclude='.git' @skills/seqsubmit-agent/ ~/.pi/agent/skills/seqsubmit-agent/` then `diff -rq` to verify. The script prints the canonical fix on `BEHIND-BY-N`. |
-| `verdict: OFFLINE` / `NO-ORIGIN` from `pixi run update-check` | No network or no `origin` remote — informational, exit code 2 | Re-run when online, or `git remote add origin https://github.com/cheahhl814/seqsubmit-agent.git` if the remote is missing. |
+| `verdict: BEHIND-BY-N` from `pixi run update-check` | Upstream `github.com/cheahhl814/ena-submit` is ahead of the deployed copy | Re-deploy per AGENTS.md §4a: `rsync -a --exclude='.git' @skills/ena-submit/ ~/.pi/agent/skills/ena-submit/` then `diff -rq` to verify. The script prints the canonical fix on `BEHIND-BY-N`. |
+| `verdict: OFFLINE` / `NO-ORIGIN` from `pixi run update-check` | No network or no `origin` remote — informational, exit code 2 | Re-run when online, or `git remote add origin https://github.com/cheahhl814/ena-submit.git` if the remote is missing. |
 
 ## Verification
 

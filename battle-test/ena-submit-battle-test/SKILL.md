@@ -1,6 +1,6 @@
 ---
-name: seqsubmit-agent-battle-test
-description: Phase 5 of seqsubmit-agent. Runs 8+ structural smoke tests: frontmatter coherence across all 5 sub-skill SKILL.md files, signature-library completeness (≥ 3 entries each in preflight/qc/debug), docs-corpus freshness (every tool in pixi.toml has docs-corpus/<tool>/README.md), pixi.toml parses, bin/skill-update-check.py parses, README hygiene (no machine-specific paths, no unfilled slots), git init status. Writes `battle-test-report.md` with PASS/PASS-WITH-WARNINGS/FAIL.
+name: ena-submit-battle-test
+description: Phase 5 of ena-submit. Runs 8+ structural smoke tests: frontmatter coherence across all 5 sub-skill SKILL.md files, signature-library completeness (≥ 3 entries each in preflight/qc/debug), docs-corpus freshness (every tool in pixi.toml has docs-corpus/<tool>/README.md), pixi.toml parses, bin/skill-update-check.py parses, README hygiene (no machine-specific paths, no unfilled slots), git init status. Writes `battle-test-report.md` with PASS/PASS-WITH-WARNINGS/FAIL.
 version: 1.0.0
 updated: "2026-09-12"
 triggers:
@@ -72,7 +72,7 @@ This sub-skill has **3 stop points** (SP1–SP3). Each fires only when the evide
 
 ## Description
 
-This skill is the **structural verification (battle-test)** phase of the seqsubmit-agent pipeline. It computes evidence and emits a machine-readable artifact plus a human-readable audit.
+This skill is the **structural verification (battle-test)** phase of the ena-submit pipeline. It computes evidence and emits a machine-readable artifact plus a human-readable audit.
 
 ## Prerequisites
 
@@ -118,7 +118,7 @@ grep -E '^version:' $(find . -name 'SKILL.md')
 
 Run:        $RUN_DIR
 Generated:  <ISO8601>
-Pipeline:   seqsubmit-agent v1.0.0
+Pipeline:   ena-submit v1.0.0
 
 ## Overall verdict
 
@@ -141,7 +141,7 @@ Pipeline:   seqsubmit-agent v1.0.0
 
 ## Recommendations
 
-- If PASS, the skill is ready to ship. `git add -A && git commit -m 'v1.0.0: initial scaffold' && git push -u origin master` and `rsync -av --delete` to `~/.pi/agent/skills/seqsubmit-agent/`.
+- If PASS, the skill is ready to ship. `git add -A && git commit -m 'v1.0.0: initial scaffold' && git push -u origin master` and `rsync -av --delete` to `~/.pi/agent/skills/ena-submit/`.
 - If PASS-WITH-WARNINGS, surface the warnings and decide whether to ship or fix first.
 
 ## Handoff
@@ -172,8 +172,8 @@ When this sub-skill fails or produces unexpected output, match the failure again
 | `disk full` | Less than recommended disk space | Free up disk or move `$RUN_DIR` to a larger disk. |
 | `Permission denied` | Wrong ownership | `chown -R $USER:$USER $RUN_DIR`. |
 | `no such file or directory` | Input path wrong | Verify the path with `ls -la`. |
-| `verdict: BEHIND-BY-N` from `pixi run update-check` | Upstream `github.com/cheahhl814/seqsubmit-agent` is ahead of the deployed copy | Re-deploy per AGENTS.md §4a: `rsync -a --exclude='.git' @skills/seqsubmit-agent/ ~/.pi/agent/skills/seqsubmit-agent/` then `diff -rq` to verify. The script prints the canonical fix on `BEHIND-BY-N`. |
-| `verdict: OFFLINE` / `NO-ORIGIN` from `pixi run update-check` | No network or no `origin` remote — informational, exit code 2 | Re-run when online, or `git remote add origin https://github.com/cheahhl814/seqsubmit-agent.git` if the remote is missing. |
+| `verdict: BEHIND-BY-N` from `pixi run update-check` | Upstream `github.com/cheahhl814/ena-submit` is ahead of the deployed copy | Re-deploy per AGENTS.md §4a: `rsync -a --exclude='.git' @skills/ena-submit/ ~/.pi/agent/skills/ena-submit/` then `diff -rq` to verify. The script prints the canonical fix on `BEHIND-BY-N`. |
+| `verdict: OFFLINE` / `NO-ORIGIN` from `pixi run update-check` | No network or no `origin` remote — informational, exit code 2 | Re-run when online, or `git remote add origin https://github.com/cheahhl814/ena-submit.git` if the remote is missing. |
 
 ## Verification
 

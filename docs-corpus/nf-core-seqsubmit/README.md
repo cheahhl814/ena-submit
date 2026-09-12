@@ -46,5 +46,5 @@ The full parameter list is in `nextflow_schema.json`. Key ones:
 ## Notes
 
 - The agent's `preflight` sub-skill validates the samplesheet column set against the chosen `--mode` (per `params.json: submission_modes` in this skill).
-- The `build/seqsubmit-agent-runner` sub-skill invokes `nextflow run nf-core/seqsubmit -profile <X> --mode <X> --input <X> --outdir <X> --centre_name <X> --submission_study <X>`. It does NOT author a local DSL2 runner.
-- The `qc/seqsubmit-agent-qc` sub-skill reads the per-mode output directory and aggregates accession receipts into `seqsubmit-report.md`.
+- The `build/ena-submit-runner` sub-skill invokes `nextflow run nf-core/seqsubmit -profile <X> --mode <X> --input <X> --outdir <X> --centre_name <X> --submission_study <X>`. It does NOT author a local DSL2 runner.
+- The `qc/ena-submit-qc` sub-skill reads the per-mode output directory and aggregates accession receipts into `seqsubmit-report.md`.

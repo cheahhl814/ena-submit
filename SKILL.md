@@ -1,5 +1,5 @@
 ---
-name: seqsubmit-agent
+name: ena-submit
 description: Agent wrapper for the nf-core/seqsubmit pipeline (v1.0.0) that submits sequence data to ENA. Orchestrates four submission modes (reads, metagenomic_assemblies, mags, bins) via Bash recipes. Does NOT re-implement the Nextflow pipeline — instead pre-validates inputs (samplesheet, Webin credentials, study accession), prepares the ENA Webin CLI context, and post-processes accession receipts. The Nextflow pipeline itself is invoked as the core executor; the agent owns the pre/post glue.
 version: 1.0.0
 updated: "2026-09-12"
@@ -73,7 +73,7 @@ This orchestrator has **one** user-facing stop point (SP0). All other stop point
 |---|---|
 | Stage detection returns `preflight` AND no upstream artifact exists | "I don't see the upstream artifact. Did you run the upstream skill?" |
 
-**Auto-pick when**: upstream artifact exists OR user just said "run seqsubmit-agent" with no other context → default to `preflight` stage.
+**Auto-pick when**: upstream artifact exists OR user just said "run ena-submit" with no other context → default to `preflight` stage.
 
 #### Routing rule
 
@@ -92,19 +92,19 @@ Auto-pick the default when the evidence is unambiguous. Ask only when the agent 
 
 ## Update Check
 
-This skill ships with a self-update check that compares the deployed `SKILL.md` (and the rest of the skill) against the upstream `github.com/cheahhl814/seqsubmit-agent` repo via `git fetch` + SHA diff — no GitHub API call, no extra dependencies.
+This skill ships with a self-update check that compares the deployed `SKILL.md` (and the rest of the skill) against the upstream `github.com/cheahhl814/ena-submit` repo via `git fetch` + SHA diff — no GitHub API call, no extra dependencies.
 
 ```bash
 pixi run update-check
 # Verdict legend (exit code in parens):
 #   UP-TO-DATE       (0)  local HEAD matches origin/HEAD
 #   LOCAL-AHEAD      (0)  unpushed local commits; no action needed
-#   BEHIND-BY-N      (1)  upstream is N commits ahead → rsync from @skills/seqsubmit-agent/
+#   BEHIND-BY-N      (1)  upstream is N commits ahead → rsync from @skills/ena-submit/
 #   OFFLINE          (2)  git fetch failed (no network / no credentials); informational
 #   NO-ORIGIN        (2)  no `origin` remote configured; informational
 ```
 
-When `BEHIND-BY-N`, the script prints the canonical fix (rsync from `@skills/seqsubmit-agent/` to `~/.pi/agent/skills/seqsubmit-agent/` per AGENTS.md §4a, then `diff -rq` to verify). When `OFFLINE`, the script still prints `local_sha` + deployed version so the user can compare by hand. The full implementation is in `bin/skill-update-check.py` (rendered from the meta-skill's `templates/bin/skill-update-check.py.j2`).
+When `BEHIND-BY-N`, the script prints the canonical fix (rsync from `@skills/ena-submit/` to `~/.pi/agent/skills/ena-submit/` per AGENTS.md §4a, then `diff -rq` to verify). When `OFFLINE`, the script still prints `local_sha` + deployed version so the user can compare by hand. The full implementation is in `bin/skill-update-check.py` (rendered from the meta-skill's `templates/bin/skill-update-check.py.j2`).
 
 ### 0.4 The run command
 

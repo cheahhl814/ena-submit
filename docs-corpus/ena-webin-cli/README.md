@@ -8,7 +8,7 @@
 
 ## Quick flags
 
-Flags the seqsubmit-agent skill actually invokes (see the `build/seqsubmit-agent-runner` sub-skill for context):
+Flags the ena-submit skill actually invokes (see the `build/ena-submit-runner` sub-skill for context):
 
 ```
 --context <reads|sequence|tsa|sequence_submit|tsa_embl|ena_run|ena_study|ena_sample|ena_experiment|ena_submission|ena_assembly|ena_genome|ena_mags>

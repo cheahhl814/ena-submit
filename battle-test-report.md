@@ -1,7 +1,7 @@
-# Battle-Test Report: seqsubmit-agent
+# Battle-Test Report: ena-submit
 
-Skill:        seqsubmit-agent
-Run:          /home/cheahhl814/claude_workspace/bioinformatics/AIx-BIO/skills/seqsubmit-agent
+Skill:        ena-submit
+Run:          /home/cheahhl814/claude_workspace/bioinformatics/AIx-BIO/skills/ena-submit
 Generated:    2026-09-12T16:15:00Z
 Meta-skill:   bioinfo-skill-creator v1.2.0
 Upstream:     https://github.com/nf-core/seqsubmit (v1.0.0)
@@ -10,12 +10,12 @@ Upstream:     https://github.com/nf-core/seqsubmit (v1.0.0)
 
 **PASS** ✅
 
-All 23 structural smoke tests pass. The skill is ready to commit and push to `github.com/cheahhl814/seqsubmit-agent`.
+All 23 structural smoke tests pass. The skill is ready to commit and push to `github.com/cheahhl814/ena-submit`.
 
 ## Test results
 
 ```
-Running 23 structural smoke tests against /home/cheahhl814/claude_workspace/bioinformatics/AIx-BIO/skills/seqsubmit-agent
+Running 23 structural smoke tests against /home/cheahhl814/claude_workspace/bioinformatics/AIx-BIO/skills/ena-submit
 
 OK    all top-level files present (SKILL.md, README.md, pixi.toml, .gitignore, params.json, preflight.md)
 OK    all 5 sub-skill SKILL.md files present
@@ -86,25 +86,25 @@ Verdict is `PASS`. The skill is ready to ship.
 Recommended next steps:
 
 ```bash
-cd /home/cheahhl814/claude_workspace/bioinformatics/AIx-BIO/skills/seqsubmit-agent
+cd /home/cheahhl814/claude_workspace/bioinformatics/AIx-BIO/skills/ena-submit
 
 # 1. git init + first commit
 git init --initial-branch=master
 git config user.email "<your.email>"
 git config user.name "<your.name>"
 git add -A
-git commit -m "v1.0.0: initial scaffold of seqsubmit-agent (no nextflow runner)"
+git commit -m "v1.0.0: initial scaffold of ena-submit (no nextflow runner)"
 
 # 2. create the GitHub repo and push
-gh repo create cheahhl814/seqsubmit-agent --public --source=. --remote=origin --push
-# (or: git remote add origin https://github.com/cheahhl814/seqsubmit-agent.git && git push -u origin master)
+gh repo create cheahhl814/ena-submit --public --source=. --remote=origin --push
+# (or: git remote add origin https://github.com/cheahhl814/ena-submit.git && git push -u origin master)
 
 # 3. deploy to pi skills directory
-rsync -av --delete . ~/.pi/agent/skills/seqsubmit-agent/
-diff -rq . ~/.pi/agent/skills/seqsubmit-agent/   # expect zero content differences
+rsync -av --delete . ~/.pi/agent/skills/ena-submit/
+diff -rq . ~/.pi/agent/skills/ena-submit/   # expect zero content differences
 
 # 4. (optional) verify the update check
-cd ~/.pi/agent/skills/seqsubmit-agent
+cd ~/.pi/agent/skills/ena-submit
 pixi run update-check
 ```
 

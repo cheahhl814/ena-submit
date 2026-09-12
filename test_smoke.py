@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""seqsubmit-agent structural smoke tests.
+"""ena-submit structural smoke tests.
 
 Run:  python3 test_smoke.py
 
-22 tests, mirroring the bioinfo-skill-creator v1.1+ convention.
+23 tests, mirroring the bioinfo-skill-creator v1.1+ convention.
 Exit 0 on PASS, 1 on FAIL.
 """
 from __future__ import annotations
@@ -19,11 +19,11 @@ from pathlib import Path
 SKILL_ROOT = Path(__file__).resolve().parent
 SUB_SKILL_DIRS = ["preflight", "build", "qc", "debug", "battle-test"]
 SUB_SKILL_NAMES = [
-    "seqsubmit-agent-preflight",
-    "seqsubmit-agent-runner",
-    "seqsubmit-agent-qc",
-    "seqsubmit-agent-debug",
-    "seqsubmit-agent-battle-test",
+    "ena-submit-preflight",
+    "ena-submit-runner",
+    "ena-submit-qc",
+    "ena-submit-debug",
+    "ena-submit-battle-test",
 ]
 EXPECTED_VERSION = "1.0.0"
 EXPECTED_UPDATED = "2026-09-12"

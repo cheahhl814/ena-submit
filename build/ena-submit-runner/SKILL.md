@@ -1,6 +1,6 @@
 ---
-name: seqsubmit-agent-runner
-description: Phase 2 of seqsubmit-agent. Constructs the `nextflow run nf-core/seqsubmit` command from `params.json` (mode, profile, input, centre_name, submission_study, outdir), starts the run, and watches the work directory. Writes `run-summary.md` + the Nextflow trace/timeline/report into `$RUN_DIR/trace/`, `$RUN_DIR/timeline/`, `$RUN_DIR/report/`. Does NOT author a local DSL2 runner — the upstream pipeline is the executor.
+name: ena-submit-runner
+description: Phase 2 of ena-submit. Constructs the `nextflow run nf-core/seqsubmit` command from `params.json` (mode, profile, input, centre_name, submission_study, outdir), starts the run, and watches the work directory. Writes `run-summary.md` + the Nextflow trace/timeline/report into `$RUN_DIR/trace/`, `$RUN_DIR/timeline/`, `$RUN_DIR/report/`. Does NOT author a local DSL2 runner — the upstream pipeline is the executor.
 version: 1.0.0
 updated: "2026-09-12"
 triggers:
@@ -73,7 +73,7 @@ This sub-skill has **4 stop points** (SP1–SP4). Each fires only when the evide
 
 ## Description
 
-This skill is the **execution (run)** phase of the seqsubmit-agent pipeline. It computes evidence and emits a machine-readable artifact plus a human-readable audit.
+This skill is the **execution (run)** phase of the ena-submit pipeline. It computes evidence and emits a machine-readable artifact plus a human-readable audit.
 
 ## Prerequisites
 
@@ -122,7 +122,7 @@ command -v docker || command -v singularity || command -v podman || command -v c
 
 Run:        $RUN_DIR
 Generated:  <ISO8601>
-Pipeline:   seqsubmit-agent v1.0.0
+Pipeline:   ena-submit v1.0.0
 
 ## Overall verdict
 
@@ -142,12 +142,12 @@ Pipeline:   seqsubmit-agent v1.0.0
 
 ## Recommendations
 
-- After run completes, hand off to `qc/seqsubmit-agent-qc` to build the accession summary.
-- If run failed, route to `debug/seqsubmit-agent-debug` with the failing stderr.
+- After run completes, hand off to `qc/ena-submit-qc` to build the accession summary.
+- If run failed, route to `debug/ena-submit-debug` with the failing stderr.
 
 ## Handoff
 
-If verdict is `GO` or `GO-WITH-WARNINGS`, hand off to: `qc/seqsubmit-agent-qc`.
+If verdict is `GO` or `GO-WITH-WARNINGS`, hand off to: `qc/ena-submit-qc`.
 
 ## Reproducibility
 
@@ -173,8 +173,8 @@ When this sub-skill fails or produces unexpected output, match the failure again
 | `disk full` | Less than recommended disk space | Free up disk or move `$RUN_DIR` to a larger disk. |
 | `Permission denied` | Wrong ownership | `chown -R $USER:$USER $RUN_DIR`. |
 | `no such file or directory` | Input path wrong | Verify the path with `ls -la`. |
-| `verdict: BEHIND-BY-N` from `pixi run update-check` | Upstream `github.com/cheahhl814/seqsubmit-agent` is ahead of the deployed copy | Re-deploy per AGENTS.md §4a: `rsync -a --exclude='.git' @skills/seqsubmit-agent/ ~/.pi/agent/skills/seqsubmit-agent/` then `diff -rq` to verify. The script prints the canonical fix on `BEHIND-BY-N`. |
-| `verdict: OFFLINE` / `NO-ORIGIN` from `pixi run update-check` | No network or no `origin` remote — informational, exit code 2 | Re-run when online, or `git remote add origin https://github.com/cheahhl814/seqsubmit-agent.git` if the remote is missing. |
+| `verdict: BEHIND-BY-N` from `pixi run update-check` | Upstream `github.com/cheahhl814/ena-submit` is ahead of the deployed copy | Re-deploy per AGENTS.md §4a: `rsync -a --exclude='.git' @skills/ena-submit/ ~/.pi/agent/skills/ena-submit/` then `diff -rq` to verify. The script prints the canonical fix on `BEHIND-BY-N`. |
+| `verdict: OFFLINE` / `NO-ORIGIN` from `pixi run update-check` | No network or no `origin` remote — informational, exit code 2 | Re-run when online, or `git remote add origin https://github.com/cheahhl814/ena-submit.git` if the remote is missing. |
 
 ## Verification
 
@@ -205,9 +205,9 @@ It does **not** produce any other artifact. The next sub-skill does that.
 
 After this sub-skill writes `$RUN_DIR/run-summary.md` and `$RUN_DIR/run-summary.md`:
 
-- **If verdict is `GO` or `GO-WITH-WARNINGS`** → hand off to `qc/seqsubmit-agent-qc`.
+- **If verdict is `GO` or `GO-WITH-WARNINGS`** → hand off to `qc/ena-submit-qc`.
 - **If verdict is `NO-GO`** → stop. List the failing checks and ask the user to fix them.
 
 The recommended message:
 
-> Run nf-core/seqsubmit complete. Overall verdict: `<verdict>`. Next: invoke `qc/seqsubmit-agent-qc` with the artifact defaults.
+> Run nf-core/seqsubmit complete. Overall verdict: `<verdict>`. Next: invoke `qc/ena-submit-qc` with the artifact defaults.

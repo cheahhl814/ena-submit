@@ -8,7 +8,7 @@
 
 ## Quick flags
 
-Flags the seqsubmit-agent skill actually invokes:
+Flags the ena-submit skill actually invokes:
 
 ```
 barrnap --quiet <fasta> > <gff>

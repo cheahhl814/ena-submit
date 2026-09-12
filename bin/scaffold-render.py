@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build sub-skill renderer for seqsubmit-agent.
+"""Build sub-skill renderer for ena-submit.
 
 Renders the bioinfo-skill-creator templates against params.json.
 No nextflow-runner (user opted out). No lite tree (target_tiers = [large] only).
@@ -13,7 +13,7 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 META = Path("/home/cheahhl814/.agents/skills/bioinfo-skill-creator")
-RUN_DIR = Path("/home/cheahhl814/claude_workspace/bioinformatics/AIx-BIO/skills/seqsubmit-agent")
+RUN_DIR = Path("/home/cheahhl814/claude_workspace/bioinformatics/AIx-BIO/skills/ena-submit")
 TEMPLATES = META / "templates"
 
 env = Environment(
@@ -51,11 +51,11 @@ params["stage_detection_ladder"] = [
 SUB_SKILLS = [
     {
         "dirname": "preflight",
-        "subskill_dirname": "seqsubmit-agent-preflight",
-        "sub_skill_name": "seqsubmit-agent-preflight",
+        "subskill_dirname": "ena-submit-preflight",
+        "sub_skill_name": "ena-submit-preflight",
         "sub_skill_title": "ENA Submission Preflight",
         "sub_skill_short_description": "Validate samplesheet, Webin credentials, and study metadata before invoking nf-core/seqsubmit.",
-        "sub_skill_description": "Phase 1 of seqsubmit-agent. Validates the submission samplesheet (column set per `--mode`), confirms `ENA_WEBIN` and `ENA_WEBIN_PASSWORD` Nextflow secrets are set, resolves the study accession or study-registration file, and writes `preflight.md` + `params.json` with verdict GO / GO-WITH-WARNINGS / NO-GO. Mirrors the preflight evidence pattern from nf-core/seqsubmit docs.",
+        "sub_skill_description": "Phase 1 of ena-submit. Validates the submission samplesheet (column set per `--mode`), confirms `ENA_WEBIN` and `ENA_WEBIN_PASSWORD` Nextflow secrets are set, resolves the study accession or study-registration file, and writes `preflight.md` + `params.json` with verdict GO / GO-WITH-WARNINGS / NO-GO. Mirrors the preflight evidence pattern from nf-core/seqsubmit docs.",
         "sub_skill_triggers": ["preflight ENA submission", "validate Webin credentials", "check seqsubmit samplesheet", "resolve study accession"],
         "sub_skill_phase_role": "input validation (preflight)",
         "sub_skill_use_case_1": "Validate the samplesheet column set against the chosen `--mode` (reads/metagenomic_assemblies/mags/bins) before invoking the upstream pipeline.",
@@ -104,18 +104,18 @@ SUB_SKILLS = [
             {"name": "Study accession OR metadata file", "verdict": "✅", "value": "PRJEB12345", "threshold": "accession OR existing file"},
             {"name": "Output directory writable", "verdict": "✅", "value": "/path/to/outdir", "threshold": "writable"},
         ],
-        "sub_skill_recommendation_1": "Proceed to `build/seqsubmit-agent-runner` with the validated samplesheet and resolved mode.",
+        "sub_skill_recommendation_1": "Proceed to `build/ena-submit-runner` with the validated samplesheet and resolved mode.",
         "sub_skill_recommendation_2": "If GO-WITH-WARNINGS: surface the warning column to the user before proceeding.",
-        "sub_skill_next_skill": "build/seqsubmit-agent-runner",
+        "sub_skill_next_skill": "build/ena-submit-runner",
         "sub_skill_upstream_evidence": "user-provided samplesheet + study accession + Webin credentials in Nextflow secrets.",
     },
     {
         "dirname": "build",
-        "subskill_dirname": "seqsubmit-agent-runner",
-        "sub_skill_name": "seqsubmit-agent-runner",
+        "subskill_dirname": "ena-submit-runner",
+        "sub_skill_name": "ena-submit-runner",
         "sub_skill_title": "Run nf-core/seqsubmit",
         "sub_skill_short_description": "Invoke the upstream nf-core/seqsubmit pipeline with the preflight-validated inputs.",
-        "sub_skill_description": "Phase 2 of seqsubmit-agent. Constructs the `nextflow run nf-core/seqsubmit` command from `params.json` (mode, profile, input, centre_name, submission_study, outdir), starts the run, and watches the work directory. Writes `run-summary.md` + the Nextflow trace/timeline/report into `$RUN_DIR/trace/`, `$RUN_DIR/timeline/`, `$RUN_DIR/report/`. Does NOT author a local DSL2 runner — the upstream pipeline is the executor.",
+        "sub_skill_description": "Phase 2 of ena-submit. Constructs the `nextflow run nf-core/seqsubmit` command from `params.json` (mode, profile, input, centre_name, submission_study, outdir), starts the run, and watches the work directory. Writes `run-summary.md` + the Nextflow trace/timeline/report into `$RUN_DIR/trace/`, `$RUN_DIR/timeline/`, `$RUN_DIR/report/`. Does NOT author a local DSL2 runner — the upstream pipeline is the executor.",
         "sub_skill_triggers": ["run seqsubmit", "submit to ENA", "run nf-core/seqsubmit", "execute seqsubmit pipeline", "start ENA submission"],
         "sub_skill_phase_role": "execution (run)",
         "sub_skill_use_case_1": "Submit a batch of samples to ENA via the upstream nf-core/seqsubmit pipeline at version 1.0.0.",
@@ -163,28 +163,28 @@ SUB_SKILLS = [
             {"name": "Webin secrets set", "verdict": "✅", "value": "ENA_WEBIN + ENA_WEBIN_PASSWORD", "threshold": "non-empty"},
             {"name": "Run submission", "verdict": "✅", "value": "submitted to ENA test server", "threshold": "test_upload=true → OK; =false → real submission"},
         ],
-        "sub_skill_recommendation_1": "After run completes, hand off to `qc/seqsubmit-agent-qc` to build the accession summary.",
-        "sub_skill_recommendation_2": "If run failed, route to `debug/seqsubmit-agent-debug` with the failing stderr.",
-        "sub_skill_next_skill": "qc/seqsubmit-agent-qc",
+        "sub_skill_recommendation_1": "After run completes, hand off to `qc/ena-submit-qc` to build the accession summary.",
+        "sub_skill_recommendation_2": "If run failed, route to `debug/ena-submit-debug` with the failing stderr.",
+        "sub_skill_next_skill": "qc/ena-submit-qc",
         "sub_skill_upstream_evidence": "preflight.md (GO/GO-WITH-WARNINGS) + params.json (mode, profile, outdir).",
     },
     {
         "dirname": "qc",
-        "subskill_dirname": "seqsubmit-agent-qc",
-        "sub_skill_name": "seqsubmit-agent-qc",
+        "subskill_dirname": "ena-submit-qc",
+        "sub_skill_name": "ena-submit-qc",
         "sub_skill_title": "ENA Submission QC + Accession Summary",
         "sub_skill_short_description": "Aggregate the per-mode accession receipts and write the final submission report.",
-        "sub_skill_description": "Phase 3 of seqsubmit-agent. Parses the per-mode output directory (reads/ or metagenomic_assemblies/ or mags/, bins/) and `multiqc/`, collects accession numbers, MAGs/bins manifest, coverage files, and the MultiQC report. Writes `seqsubmit-report.md` (the per-submission audit report) and `qc-summary.md` (the machine-readable summary).",
+        "sub_skill_description": "Phase 3 of ena-submit. Parses the per-mode output directory (reads/ or metagenomic_assemblies/ or mags/, bins/) and `multiqc/`, collects accession numbers, MAGs/bins manifest, coverage files, and the MultiQC report. Writes `seqsubmit-report.md` (the per-submission audit report) and `qc-summary.md` (the machine-readable summary).",
         "sub_skill_triggers": ["build ENA submission report", "summarise accession numbers", "qc seqsubmit output", "collect MAG accessions"],
         "sub_skill_phase_role": "output (qc)",
         "sub_skill_use_case_1": "Collect accession numbers per sample after a successful ENA submission.",
         "sub_skill_use_case_2": "Aggregate the per-mode outputs (manifest TSVs, MultiQC report, MAGs/bins metadata) into a single audit-trail report.",
-        "sub_skill_anti_use_case_1": "The pipeline run failed — route to `debug/seqsubmit-agent-debug` first.",
+        "sub_skill_anti_use_case_1": "The pipeline run failed — route to `debug/ena-submit-debug` first.",
         "sub_skill_user_inputs": [
             {"name": "Submission mode (mags/bins/metagenomic_assemblies/reads)", "required": "yes", "default": "from params.json"},
         ],
         "sub_skill_inputs": [
-            {"path": "run-summary.md", "source": "build/seqsubmit-agent-runner", "required": "yes"},
+            {"path": "run-summary.md", "source": "build/ena-submit-runner", "required": "yes"},
             {"path": "outdir/<mode>/", "source": "build", "required": "yes (mode-specific)"},
             {"path": "outdir/multiqc/", "source": "build", "required": "no (but aggregated when present)"},
         ],
@@ -225,11 +225,11 @@ SUB_SKILLS = [
     },
     {
         "dirname": "debug",
-        "subskill_dirname": "seqsubmit-agent-debug",
-        "sub_skill_name": "seqsubmit-agent-debug",
+        "subskill_dirname": "ena-submit-debug",
+        "sub_skill_name": "ena-submit-debug",
         "sub_skill_title": "Debug: ENA Submission Failures",
         "sub_skill_short_description": "Interpret nf-core/seqsubmit failures via the signature library and recommend a fix.",
-        "sub_skill_description": "Phase 4 (optional) of seqsubmit-agent. Reads the failing stderr / Nextflow log / ENA Webin CLI receipt and matches it against the signature library (e.g. 'Webin authentication failed', 'checkm2_db not found', 'samplesheet missing column <X>', 'study accession already has private status'). Writes `debug-report.md` with diagnosis + fix.",
+        "sub_skill_description": "Phase 4 (optional) of ena-submit. Reads the failing stderr / Nextflow log / ENA Webin CLI receipt and matches it against the signature library (e.g. 'Webin authentication failed', 'checkm2_db not found', 'samplesheet missing column <X>', 'study accession already has private status'). Writes `debug-report.md` with diagnosis + fix.",
         "sub_skill_triggers": ["debug ENA submission failure", "interpret seqsubmit error", "Webin CLI error", "nf-core/seqsubmit failed"],
         "sub_skill_phase_role": "failure-interpretation (debug)",
         "sub_skill_use_case_1": "Diagnose a failing `nextflow run nf-core/seqsubmit` invocation by matching the stderr against the signature library.",
@@ -240,7 +240,7 @@ SUB_SKILLS = [
             {"name": "Mode (mags/bins/metagenomic_assemblies/reads)", "required": "yes", "default": "from params.json"},
         ],
         "sub_skill_inputs": [
-            {"path": "run.log", "source": "build/seqsubmit-agent-runner", "required": "yes"},
+            {"path": "run.log", "source": "build/ena-submit-runner", "required": "yes"},
             {"path": "preflight.md", "source": "preflight", "required": "yes"},
         ],
         "sub_skill_outputs": [
@@ -277,11 +277,11 @@ SUB_SKILLS = [
     },
     {
         "dirname": "battle-test",
-        "subskill_dirname": "seqsubmit-agent-battle-test",
-        "sub_skill_name": "seqsubmit-agent-battle-test",
+        "subskill_dirname": "ena-submit-battle-test",
+        "sub_skill_name": "ena-submit-battle-test",
         "sub_skill_title": "Battle-Test: Skill Structural Integrity",
         "sub_skill_short_description": "Verify the new skill is structurally sound before declaring it ready.",
-        "sub_skill_description": "Phase 5 of seqsubmit-agent. Runs 8+ structural smoke tests: frontmatter coherence across all 5 sub-skill SKILL.md files, signature-library completeness (≥ 3 entries each in preflight/qc/debug), docs-corpus freshness (every tool in pixi.toml has docs-corpus/<tool>/README.md), pixi.toml parses, bin/skill-update-check.py parses, README hygiene (no machine-specific paths, no unfilled slots), git init status. Writes `battle-test-report.md` with PASS/PASS-WITH-WARNINGS/FAIL.",
+        "sub_skill_description": "Phase 5 of ena-submit. Runs 8+ structural smoke tests: frontmatter coherence across all 5 sub-skill SKILL.md files, signature-library completeness (≥ 3 entries each in preflight/qc/debug), docs-corpus freshness (every tool in pixi.toml has docs-corpus/<tool>/README.md), pixi.toml parses, bin/skill-update-check.py parses, README hygiene (no machine-specific paths, no unfilled slots), git init status. Writes `battle-test-report.md` with PASS/PASS-WITH-WARNINGS/FAIL.",
         "sub_skill_triggers": ["battle-test the skill", "verify skill integrity", "structural smoke test", "skill quality gate"],
         "sub_skill_phase_role": "structural verification (battle-test)",
         "sub_skill_use_case_1": "Verify the new skill is structurally sound (frontmatter coherence, signature-library completeness, docs-corpus freshness, pixi.toml parse, README hygiene).",
@@ -329,7 +329,7 @@ SUB_SKILLS = [
             {"name": "git init status", "verdict": "✅", "value": "clean", "threshold": "initialised + clean"},
             {"name": ".gitignore covers work/ + docs-corpus/.fingerprints", "verdict": "✅", "value": "present", "threshold": "both entries present"},
         ],
-        "sub_skill_recommendation_1": "If PASS, the skill is ready to ship. `git add -A && git commit -m 'v1.0.0: initial scaffold' && git push -u origin master` and `rsync -av --delete` to `~/.pi/agent/skills/seqsubmit-agent/`.",
+        "sub_skill_recommendation_1": "If PASS, the skill is ready to ship. `git add -A && git commit -m 'v1.0.0: initial scaffold' && git push -u origin master` and `rsync -av --delete` to `~/.pi/agent/skills/ena-submit/`.",
         "sub_skill_recommendation_2": "If PASS-WITH-WARNINGS, surface the warnings and decide whether to ship or fix first.",
         "sub_skill_next_skill": "(end of pipeline — ship the skill)",
         "sub_skill_upstream_evidence": "the new skill itself (SKILL.md, README.md, pixi.toml, all sub-skill SKILL.md files, docs-corpus/, bin/skill-update-check.py).",

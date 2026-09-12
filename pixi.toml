@@ -1,5 +1,5 @@
 [workspace]
-name = "seqsubmit-agent"
+name = "ena-submit"
 version = "1.0.0"
 description = "Agent wrapper for the nf-core/seqsubmit pipeline (v1.0.0) — orchestrates 4 ENA submission modes (reads, metagenomic_assemblies, mags, bins) via Bash recipes. Wraps the upstream Nextflow pipeline as an external executor; pre-validates inputs and post-processes accession receipts."
 channels = ["conda-forge", "bioconda"]
@@ -32,6 +32,6 @@ run = "echo 'Starting main workflow...'"
 qc = "echo 'Starting QC workflow...'"
 debug = "echo 'Starting debug workflow...'"
 battle-test = "echo 'Starting battle-test workflow...'"
-# Self-check: compares this skill's git SHA to upstream (github.com/cheahhl814/seqsubmit-agent).
+# Self-check: compares this skill's git SHA to upstream (github.com/cheahhl814/ena-submit).
 # See bin/skill-update-check.py for the verdict legend (UP-TO-DATE / BEHIND-BY-N / OFFLINE).
 update-check = "python3 bin/skill-update-check.py"

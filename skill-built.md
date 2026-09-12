@@ -1,7 +1,7 @@
 # Skill build report
 
-Skill:        seqsubmit-agent
-Run:          /home/cheahhl814/claude_workspace/bioinformatics/AIx-BIO/skills/seqsubmit-agent
+Skill:        ena-submit
+Run:          /home/cheahhl814/claude_workspace/bioinformatics/AIx-BIO/skills/ena-submit
 Generated:    2026-09-12T16:10:00Z
 Meta-skill:   bioinfo-skill-creator v1.2.0
 Upstream:     https://github.com/nf-core/seqsubmit (v1.0.0)
@@ -28,11 +28,11 @@ Upstream:     https://github.com/nf-core/seqsubmit (v1.0.0)
 | params.json | 5,474 | computed at battle-test time |
 | preflight.md | 5,300 | computed at battle-test time |
 | preflight_evidence.txt | 523 | computed at battle-test time |
-| preflight/seqsubmit-agent-preflight/SKILL.md | 8,926 | computed at battle-test time |
-| build/seqsubmit-agent-runner/SKILL.md | 8,683 | computed at battle-test time |
-| qc/seqsubmit-agent-qc/SKILL.md | 8,644 | computed at battle-test time |
-| debug/seqsubmit-agent-debug/SKILL.md | 8,373 | computed at battle-test time |
-| battle-test/seqsubmit-agent-battle-test/SKILL.md | 9,095 | computed at battle-test time |
+| preflight/ena-submit-preflight/SKILL.md | 8,926 | computed at battle-test time |
+| build/ena-submit-runner/SKILL.md | 8,683 | computed at battle-test time |
+| qc/ena-submit-qc/SKILL.md | 8,644 | computed at battle-test time |
+| debug/ena-submit-debug/SKILL.md | 8,373 | computed at battle-test time |
+| battle-test/ena-submit-battle-test/SKILL.md | 9,095 | computed at battle-test time |
 | bin/skill-update-check.py | 6,948 | computed at battle-test time |
 | docs-corpus/ena-webin-cli/README.md | 1,469 | `9ecb60fa...` (docs-corpus/.fingerprints) |
 | docs-corpus/barrnap/README.md | 818 | `370bf914...` |
@@ -69,4 +69,4 @@ Run `python3 test_smoke.py` to re-verify the structural integrity (23 tests, exp
 
 ## Handoff
 
-Build succeeded. Hand off to `battle-test/seqsubmit-agent-battle-test` to run the 23-test structural smoke test (or invoke `python3 test_smoke.py` directly).
+Build succeeded. Hand off to `battle-test/ena-submit-battle-test` to run the 23-test structural smoke test (or invoke `python3 test_smoke.py` directly).

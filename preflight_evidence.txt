@@ -1,4 +1,4 @@
-Skill name: seqsubmit-agent (valid kebab-case)
+Skill name: ena-submit (valid kebab-case)
 SKILL_NAME: COLLISION
 Run dir: writable
 Pixi: pixi 0.70.1 on PATH

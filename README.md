@@ -6,7 +6,7 @@
 
 Agent wrapper for the nf-core/seqsubmit pipeline (v1.0.0) that submits sequence data to ENA. Orchestrates four submission modes (reads, metagenomic_assemblies, mags, bins) via Bash recipes. Does NOT re-implement the Nextflow pipeline — instead pre-validates inputs (samplesheet, Webin credentials, study accession), prepares the ENA Webin CLI context, and post-processes accession receipts. The Nextflow pipeline itself is invoked as the core executor; the agent owns the pre/post glue.
 
-**Repository**: https://github.com/cheahhl814/seqsubmit-agent
+**Repository**: https://github.com/cheahhl814/ena-submit
 
 > [!NOTE]
 > Current version: **v1.0.0** (updated 2026-09-12).
@@ -29,8 +29,8 @@ This is an **agent skill**, not a user-facing library. The recommended install p
 **Option A — give your agent this prompt (recommended):**
 
 ```text
-Install the seqsubmit-agent skill from
-https://github.com/cheahhl814/seqsubmit-agent —
+Install the ena-submit skill from
+https://github.com/cheahhl814/ena-submit —
 clone it into your agent's skills directory (the path your agent watches
 for skills) and run `pixi install` from that directory. Then read the
 skill's SKILL.md to understand its phases and the Input/Output contract
@@ -40,8 +40,8 @@ for each. Confirm when the environment is ready.
 **Option B — manual install:**
 
 ```bash
-git clone https://github.com/cheahhl814/seqsubmit-agent.git
-cd seqsubmit-agent
+git clone https://github.com/cheahhl814/ena-submit.git
+cd ena-submit
 pixi install
 ```
 
@@ -131,7 +131,7 @@ pixi run update-check
 ## 📁 Repository layout
 
 ```text
-seqsubmit-agent/
+ena-submit/
 ├── SKILL.md                 # Master orchestrator (router — start here)
 ├── README.md                # This file
 ├── pixi.toml                # Pinned tool environment (pixi install)

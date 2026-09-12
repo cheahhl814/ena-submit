@@ -1,5 +1,5 @@
 {
-  "skill_name": "seqsubmit-agent",
+  "skill_name": "ena-submit",
   "skill_title": "ENA Sequence Submission Agent (seqsubmit wrapper)",
   "skill_description": "Agent wrapper for the nf-core/seqsubmit pipeline (v1.0.0) that submits sequence data to ENA. Orchestrates four submission modes (reads, metagenomic_assemblies, mags, bins) via Bash recipes. Does NOT re-implement the Nextflow pipeline — instead pre-validates inputs (samplesheet, Webin credentials, study accession), prepares the ENA Webin CLI context, and post-processes accession receipts. The Nextflow pipeline itself is invoked as the core executor; the agent owns the pre/post glue.",
   "skill_version": "1.0.0",
@@ -16,10 +16,10 @@
     "run nf-core/seqsubmit",
     "seqsubmit agent"
   ],
-  "run_dir": "/home/cheahhl814/claude_workspace/bioinformatics/AIx-BIO/skills/seqsubmit-agent",
+  "run_dir": "/home/cheahhl814/claude_workspace/bioinformatics/AIx-BIO/skills/ena-submit",
   "skills_root": "/home/cheahhl814/claude_workspace/bioinformatics/AIx-BIO/skills",
   "github_org": "cheahhl814",
-  "github_repo": "github.com/cheahhl814/seqsubmit-agent",
+  "github_repo": "github.com/cheahhl814/ena-submit",
   "skill_shape": "meta-skill-multi-subskill",
   "sub_skills": [
     "preflight",

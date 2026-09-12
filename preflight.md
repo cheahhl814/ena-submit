@@ -1,6 +1,6 @@
 # Skill creator preflight report
 
-Run:        /home/cheahhl814/claude_workspace/bioinformatics/AIx-BIO/skills/seqsubmit-agent
+Run:        /home/cheahhl814/claude_workspace/bioinformatics/AIx-BIO/skills/ena-submit
 Generated:  2026-09-12T16:03:00Z
 Meta-skill: bioinfo-skill-creator v1.2.0
 Upstream:   https://github.com/nf-core/seqsubmit (v1.0.0)
@@ -9,13 +9,13 @@ Upstream:   https://github.com/nf-core/seqsubmit (v1.0.0)
 
 **GO** ✅
 
-Skill `seqsubmit-agent` queued for build. 7 public tools found (ena-webin-cli, barrnap, cat, checkm2, coverm, trnascan-se, multiqc) + Nextflow as the external executor. Bash-only per user request — no local DSL2 runner; the skill wraps the upstream nf-core/seqsubmit pipeline.
+Skill `ena-submit` queued for build. 7 public tools found (ena-webin-cli, barrnap, cat, checkm2, coverm, trnascan-se, multiqc) + Nextflow as the external executor. Bash-only per user request — no local DSL2 runner; the skill wraps the upstream nf-core/seqsubmit pipeline.
 
 ## Evidence
 
 | Check | Verdict | Value | Threshold |
 |---|---|---|---|
-| Skill name (kebab-case) | ✅ | `seqsubmit-agent` | valid regex |
+| Skill name (kebab-case) | ✅ | `ena-submit` | valid regex |
 | Skill name uniqueness | ✅ | no collision in `@skills/` | unique |
 | Target directory writable | ✅ | `$RUN_DIR` | writable |
 | Tool inventory | ✅ | 7 tools (after dropping 2 aliases) | ≥ 1 |
@@ -24,7 +24,7 @@ Skill `seqsubmit-agent` queued for build. 7 public tools found (ena-webin-cli, b
 | Nextflow (external executor) | ✅ | required by upstream pipeline (≥25.04.0) | not packaged in pixi.toml — invoked directly |
 | Git status | ⚠️ | NOT initialized | will init in build phase |
 | Disk space | ✅ | 128 GB free at $RUN_DIR | ≥ 5 GB |
-| GitHub repo | ✅ | cheahhl814/seqsubmit-agent does not exist yet | will be created on first push |
+| GitHub repo | ✅ | cheahhl814/ena-submit does not exist yet | will be created on first push |
 
 ## SP8 (tool not found) — auto-resolved
 
@@ -43,7 +43,7 @@ Per the user's explicit request: *"create a meta-skill (without nextflow runner)
 
 ## Recommendations
 
-- **Skill name**: `seqsubmit-agent` (user-provided; valid)
+- **Skill name**: `ena-submit` (user-provided; valid)
 - **Skill shape**: `meta-skill-multi-subskill` (5 sub-skills; wraps a multi-mode external pipeline)
 - **Sub-skills**: preflight, run, qc, debug, battle-test (5-sub-skill template)
 - **Nextflow runner**: **no** (SP7 user override)
@@ -68,7 +68,7 @@ Per the user's explicit request: *"create a meta-skill (without nextflow runner)
 
 Verdict is `GO`. Hand off to `build/skill-builder` with `params.json` defaults:
 
-- `skill_name` = `seqsubmit-agent`
+- `skill_name` = `ena-submit`
 - `tool_inventory` = 7 tools (see table above) + `nextflow` as external
 - `with_nextflow_runner` = `false`
 - `sub_skills` = `["preflight", "run", "qc", "debug", "battle-test"]`

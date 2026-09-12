@@ -1,6 +1,6 @@
 ---
-name: seqsubmit-agent-preflight
-description: Phase 1 of seqsubmit-agent. Validates the submission samplesheet (column set per `--mode`), confirms `ENA_WEBIN` and `ENA_WEBIN_PASSWORD` Nextflow secrets are set, resolves the study accession or study-registration file, and writes `preflight.md` + `params.json` with verdict GO / GO-WITH-WARNINGS / NO-GO. Mirrors the preflight evidence pattern from nf-core/seqsubmit docs.
+name: ena-submit-preflight
+description: Phase 1 of ena-submit. Validates the submission samplesheet (column set per `--mode`), confirms `ENA_WEBIN` and `ENA_WEBIN_PASSWORD` Nextflow secrets are set, resolves the study accession or study-registration file, and writes `preflight.md` + `params.json` with verdict GO / GO-WITH-WARNINGS / NO-GO. Mirrors the preflight evidence pattern from nf-core/seqsubmit docs.
 version: 1.0.0
 updated: "2026-09-12"
 triggers:
@@ -71,7 +71,7 @@ This sub-skill has **5 stop points** (SP1–SP5). Each fires only when the evide
 
 ## Description
 
-This skill is the **input validation (preflight)** phase of the seqsubmit-agent pipeline. It computes evidence and emits a machine-readable artifact plus a human-readable audit.
+This skill is the **input validation (preflight)** phase of the ena-submit pipeline. It computes evidence and emits a machine-readable artifact plus a human-readable audit.
 
 ## Prerequisites
 
@@ -121,7 +121,7 @@ MODE=$1; awk -F, 'NR==1{for(i=1;i<=NF;i++) h[i]=$i; print h[1]}' "$SAMPLESHEET"
 
 Run:        $RUN_DIR
 Generated:  <ISO8601>
-Pipeline:   seqsubmit-agent v1.0.0
+Pipeline:   ena-submit v1.0.0
 
 ## Overall verdict
 
@@ -142,12 +142,12 @@ Pipeline:   seqsubmit-agent v1.0.0
 
 ## Recommendations
 
-- Proceed to `build/seqsubmit-agent-runner` with the validated samplesheet and resolved mode.
+- Proceed to `build/ena-submit-runner` with the validated samplesheet and resolved mode.
 - If GO-WITH-WARNINGS: surface the warning column to the user before proceeding.
 
 ## Handoff
 
-If verdict is `GO` or `GO-WITH-WARNINGS`, hand off to: `build/seqsubmit-agent-runner`.
+If verdict is `GO` or `GO-WITH-WARNINGS`, hand off to: `build/ena-submit-runner`.
 
 ## Reproducibility
 
@@ -173,8 +173,8 @@ When this sub-skill fails or produces unexpected output, match the failure again
 | `disk full` | Less than recommended disk space | Free up disk or move `$RUN_DIR` to a larger disk. |
 | `Permission denied` | Wrong ownership | `chown -R $USER:$USER $RUN_DIR`. |
 | `no such file or directory` | Input path wrong | Verify the path with `ls -la`. |
-| `verdict: BEHIND-BY-N` from `pixi run update-check` | Upstream `github.com/cheahhl814/seqsubmit-agent` is ahead of the deployed copy | Re-deploy per AGENTS.md §4a: `rsync -a --exclude='.git' @skills/seqsubmit-agent/ ~/.pi/agent/skills/seqsubmit-agent/` then `diff -rq` to verify. The script prints the canonical fix on `BEHIND-BY-N`. |
-| `verdict: OFFLINE` / `NO-ORIGIN` from `pixi run update-check` | No network or no `origin` remote — informational, exit code 2 | Re-run when online, or `git remote add origin https://github.com/cheahhl814/seqsubmit-agent.git` if the remote is missing. |
+| `verdict: BEHIND-BY-N` from `pixi run update-check` | Upstream `github.com/cheahhl814/ena-submit` is ahead of the deployed copy | Re-deploy per AGENTS.md §4a: `rsync -a --exclude='.git' @skills/ena-submit/ ~/.pi/agent/skills/ena-submit/` then `diff -rq` to verify. The script prints the canonical fix on `BEHIND-BY-N`. |
+| `verdict: OFFLINE` / `NO-ORIGIN` from `pixi run update-check` | No network or no `origin` remote — informational, exit code 2 | Re-run when online, or `git remote add origin https://github.com/cheahhl814/ena-submit.git` if the remote is missing. |
 
 ## Verification
 
@@ -205,9 +205,9 @@ It does **not** produce any other artifact. The next sub-skill does that.
 
 After this sub-skill writes `$RUN_DIR/preflight.md` and `$RUN_DIR/params.json`:
 
-- **If verdict is `GO` or `GO-WITH-WARNINGS`** → hand off to `build/seqsubmit-agent-runner`.
+- **If verdict is `GO` or `GO-WITH-WARNINGS`** → hand off to `build/ena-submit-runner`.
 - **If verdict is `NO-GO`** → stop. List the failing checks and ask the user to fix them.
 
 The recommended message:
 
-> ENA Submission Preflight complete. Overall verdict: `<verdict>`. Next: invoke `build/seqsubmit-agent-runner` with the artifact defaults.
+> ENA Submission Preflight complete. Overall verdict: `<verdict>`. Next: invoke `build/ena-submit-runner` with the artifact defaults.
