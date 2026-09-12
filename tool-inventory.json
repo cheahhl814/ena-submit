@@ -1,0 +1,15 @@
+{
+  "tools": [
+    {"name": "ena-webin-cli", "version": "*", "role": "ENA submission CLI (umbrella for all 4 modes: reads, metagenomic_assemblies, mags, bins)", "status": "found"},
+    {"name": "barrnap", "version": "0.9", "role": "rRNA detection (used in genome_evaluation subworkflow)", "status": "found"},
+    {"name": "cat", "version": "*", "role": "Contig Annotation Tool (CAT) for taxonomy classification of MAGs/bins", "status": "found"},
+    {"name": "checkm2", "version": "*", "role": "MAG quality assessment (completeness/contamination)", "status": "found"},
+    {"name": "coverm", "version": "*", "role": "read coverage / contig coverage / genome coverage", "status": "found"},
+    {"name": "trnascan-se", "version": "2.0", "role": "tRNA detection (used in genome_evaluation subworkflow)", "status": "found"},
+    {"name": "multiqc", "version": "1.x", "role": "aggregate QC report", "status": "found"}
+  ],
+  "dropped": [
+    {"name": "webin-cli", "reason": "legacy alias; current package is ena-webin-cli"},
+    {"name": "catpack", "reason": "bioconda package is named 'cat' (Contig Annotation Tool)"}
+  ]
+}

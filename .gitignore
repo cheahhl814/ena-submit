@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+
+# pixi
+.pixi/
+pixi.lock
+
+# work / run artefacts
+work/
+outdir/
+trace/
+timeline/
+report/
+run.log
+nextflow.log*
+
+# docs-corpus fingerprints
+docs-corpus/.fingerprints
+
+# macOS
+.DS_Store

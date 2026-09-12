@@ -1,0 +1,37 @@
+[workspace]
+name = "seqsubmit-agent"
+version = "1.0.0"
+description = "Agent wrapper for the nf-core/seqsubmit pipeline (v1.0.0) — orchestrates 4 ENA submission modes (reads, metagenomic_assemblies, mags, bins) via Bash recipes. Wraps the upstream Nextflow pipeline as an external executor; pre-validates inputs and post-processes accession receipts."
+channels = ["conda-forge", "bioconda"]
+platforms = ["linux-64", "osx-64", "osx-arm64"]
+
+[dependencies]
+# Every tool here was confirmed via `pixi search` during preflight (status: found in params.json).
+ena-webin-cli = "*"
+barrnap = "0.9"
+cat = "*"
+checkm2 = "*"
+coverm = "*"
+trnascan-se = "2.0"
+multiqc = "1.x"
+
+# CheckM (validation) crashes on Python >=3.12 with setuptools >=81:
+# "ModuleNotFoundError: No module named 'pkg_resources'" (pkg_resources was
+# removed from setuptools in 81). Pin setuptools until checkm-genome is
+# updated upstream to not depend on pkg_resources.
+# setuptools = "<81"  # uncomment if CheckM is used
+
+
+# === System prerequisites (not installed via pixi; install outside the env) ===
+# nextflow (version >=25.04.0, role: pipeline executor (the agent invokes the upstream nf-core/seqsubmit pipeline)) — install via system package manager or upstream installer.
+
+[tasks]
+# Common workflows as pixi tasks
+preflight = "echo 'Starting preflight workflow...'"
+run = "echo 'Starting main workflow...'"
+qc = "echo 'Starting QC workflow...'"
+debug = "echo 'Starting debug workflow...'"
+battle-test = "echo 'Starting battle-test workflow...'"
+# Self-check: compares this skill's git SHA to upstream (github.com/cheahhl814/seqsubmit-agent).
+# See bin/skill-update-check.py for the verdict legend (UP-TO-DATE / BEHIND-BY-N / OFFLINE).
+update-check = "python3 bin/skill-update-check.py"
