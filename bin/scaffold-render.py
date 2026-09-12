@@ -424,6 +424,16 @@ nextflow.log*
 # docs-corpus fingerprints
 docs-corpus/.fingerprints
 
+# build / battle-test / preflight artefacts
+# Emitted by the bioinfo-skill-creator build phase; NOT part of the skill's
+# operational deliverable. Future re-runs will regenerate them; never commit.
+test_smoke.py
+skill-built.md
+battle-test-report.md
+preflight.md
+preflight_evidence.txt
+tool-inventory.json
+
 # macOS
 .DS_Store
 """)
