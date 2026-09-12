@@ -25,6 +25,6 @@ Flags the ena-submit skill actually invokes (see the `build/ena-submit-runner` s
 ## Notes
 
 - `ena-webin-cli` is the umbrella CLI for ALL four submission modes (reads / metagenomic_assemblies / mags / bins). The context flag selects which submission type.
-- Authentication: `--userName` (`Webin-XXX` format) and `--password`. The skill wraps this in Nextflow secrets (`ENA_WEBIN`, `ENA_WEBIN_PASSWORD`) so they never appear on the command line.
-- The nf-core/seqsubmit pipeline invokes `webin-cli` internally per mode; the agent never calls `ena-webin-cli` directly. It only validates the binary is on PATH and that the Webin secrets resolve.
-- For the test server, prepend `--test` (or run the pipeline with `--test_upload true`).
+- Authentication: `--userName` (`Webin-XXX` format) and `--password`, read from the `ENA_WEBIN` / `ENA_WEBIN_PASSWORD` environment variables so credentials never appear on the command line.
+- `build/ena-submit-runner` invokes `ena-webin-cli` directly (no Nextflow/nf-core involved) — it is the actual submission executor, not something wrapped by an upstream pipeline.
+- For the test server, pass `--test` (SP1-gated default in `build/ena-submit-runner`; a production submission requires explicit user confirmation).

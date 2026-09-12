@@ -1,10 +1,10 @@
-# ENA Sequence Submission Agent (seqsubmit wrapper)
+# ENA Sequence Submission Agent (native ena-webin-cli orchestrator)
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue)](#-installation)
 [![Type](https://img.shields.io/badge/type-agent%20skill-blueviolet)](#-installation)
 [![Built with](https://img.shields.io/badge/built%20with-bioinfo--skill--creator-orange)](https://github.com/cheahhl814/bioinfo-skill-creator)
 
-Agent wrapper for the nf-core/seqsubmit pipeline (v1.0.0) that submits sequence data to ENA. Orchestrates four submission modes (reads, metagenomic_assemblies, mags, bins) via Bash recipes. Does NOT re-implement the Nextflow pipeline — instead pre-validates inputs (samplesheet, Webin credentials, study accession), prepares the ENA Webin CLI context, and post-processes accession receipts. The Nextflow pipeline itself is invoked as the core executor; the agent owns the pre/post glue.
+Native tool-orchestration meta-skill that submits sequence data to ENA. Orchestrates four submission modes (reads, metagenomic_assemblies, mags, bins) via Bash recipes. For `mags`/`bins` mode it runs the genome_evaluation QC tools itself (barrnap, tRNAscan-SE, CheckM2, CAT, CoverM) to fill in missing samplesheet metadata, then builds the ena-webin-cli manifest(s) and invokes `ena-webin-cli` directly against the ENA test or production server. No Nextflow, no nf-core dependency — the stage order and manifest formats follow the nf-core/seqsubmit spec (vendored offline in `docs-corpus/`) purely as a reference.
 
 **Repository**: https://github.com/cheahhl814/ena-submit
 
@@ -86,10 +86,10 @@ The analysis follows a phased evidence chain. Each phase consumes the artifacts 
 
 | # | Phase | Goal | Sub-skill | Artifact produced |
 |:--|:------|:-----|:----------|:------------------|
-| **1** | **Preflight** | Validate samplesheet, Webin credentials, and study metadata before invoking nf-core/seqsubmit. | `preflight/` | `$RUN_DIR/preflight.md` |
-| **2** | **Build** | Invoke the upstream nf-core/seqsubmit pipeline with the preflight-validated inputs. | `build/` | `$RUN_DIR/run-summary.md` |
-| **3** | **Qc** | Aggregate the per-mode accession receipts and write the final submission report. | `qc/` | `$RUN_DIR/seqsubmit-report.md` |
-| **4** | **Debug** | Interpret nf-core/seqsubmit failures via the signature library and recommend a fix. | `debug/` | `$RUN_DIR/debug-report.md` |
+| **1** | **Preflight** | Validate samplesheet, Webin credentials, and study metadata; audit that `ena-webin-cli` (and, for mags/bins, the QC tools) are on PATH. | `preflight/` | `$RUN_DIR/preflight.md` |
+| **2** | **Build** | Run the genome_evaluation QC tools (mags/bins only), build the manifest(s), and invoke `ena-webin-cli` directly. | `build/` | `$RUN_DIR/run-summary.md` |
+| **3** | **Qc** | Aggregate the ena-webin-cli receipts and genome_evaluation QC outputs and write the final submission report. | `qc/` | `$RUN_DIR/seqsubmit-report.md` |
+| **4** | **Debug** | Interpret ena-webin-cli / genome_evaluation QC tool failures via the signature library and recommend a fix. | `debug/` | `$RUN_DIR/debug-report.md` |
 | **5** | **Battle-test** | Verify the new skill is structurally sound before declaring it ready. | `battle-test/` | `$RUN_DIR/battle-test-report.md` |
 
 > [!TIP]
@@ -108,9 +108,8 @@ All tools are resolved from conda-forge/bioconda via the pinned `pixi.toml`.
 | `coverm` | * | read coverage / contig coverage / genome coverage |
 | `trnascan-se` | 2.0 | tRNA detection (used in genome_evaluation subworkflow) |
 | `multiqc` | 1.x | aggregate QC report |
-| `nextflow` | >=25.04.0 | pipeline executor (the agent invokes the upstream nf-core/seqsubmit pipeline) |
 
-Tool usage is grounded in the offline `docs-corpus/` snapshots (version-matched `--help`/`man` captures, upstream repo docs, and web docs as fallback) — the agent reads these instead of guessing flags.
+Tool usage is grounded in the offline `docs-corpus/` snapshots (version-matched `--help`/`man` captures, upstream repo docs, and web docs as fallback) — the agent reads these instead of guessing flags. `docs-corpus/nf-core-seqsubmit/` is kept as a **reference spec only** (stage ordering, manifest formats, samplesheet schemas) — the pipeline itself is never invoked.
 
 ## 🔄 Update check
 
@@ -143,7 +142,7 @@ ena-submit/
 │   └── coverm/
 │   └── trnascan-se/
 │   └── multiqc/
-│   └── nextflow/
+│   └── nf-core-seqsubmit/   # reference spec only (stage order, manifest formats) — never invoked
 ├── preflight/            # Phase sub-skill
 ├── build/            # Phase sub-skill
 ├── qc/            # Phase sub-skill
@@ -161,10 +160,6 @@ ena-submit/
 - **Docs-grounded tool usage** — tool flags come from `docs-corpus/`, never from the agent's memory.
 - **Explicit stop points** — ambiguous decisions are surfaced to you as *Evidence + Recommend + Options*, not auto-picked.
 - **Reproducible environments** — every tool is pinned in `pixi.toml` and resolved via pixi.
-
-## 🚀 Nextflow runner
-
-This skill does not currently ship a Nextflow runner. For cohort/HPC execution, wrap the `pixi run` tasks in a workflow scheduler of your choice.
 
 ## Provenance
 

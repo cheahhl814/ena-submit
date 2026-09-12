@@ -8,7 +8,7 @@
 
 ## Quick flags
 
-The skill invokes CheckM2 via the nf-core `checkm2/predict` module:
+`build/ena-submit-runner` invokes CheckM2 directly (no Nextflow/nf-core module involved), following the same command shape as the nf-core `checkm2/predict` module for reference:
 
 ```
 checkm2 predict --threads <N> --input <bins_dir/*.fa> --output-directory <out_dir/>

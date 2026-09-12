@@ -8,7 +8,7 @@
 
 ## Quick flags
 
-The skill invokes CoverM via the nf-core `coverm/contig` and `coverm/genome` modules:
+`build/ena-submit-runner` invokes CoverM directly (no Nextflow/nf-core module involved), following the same command shape as the nf-core `coverm/contig` and `coverm/genome` modules for reference:
 
 ```
 # Per-contig coverage

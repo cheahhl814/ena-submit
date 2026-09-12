@@ -1,18 +1,18 @@
 ---
 name: ena-submit-debug
-description: Phase 4 (optional) of ena-submit. Reads the failing stderr / Nextflow log / ENA Webin CLI receipt and matches it against the signature library (e.g. 'Webin authentication failed', 'checkm2_db not found', 'samplesheet missing column <X>', 'study accession already has private status'). Writes `debug-report.md` with diagnosis + fix.
+description: Phase 4 (optional) of ena-submit. Reads the failing stderr in `run.log` / the `ena-webin-cli` receipt / the genome_evaluation QC tool logs and matches it against the signature library (e.g. 'Webin authentication failed', 'checkm2 database not found', 'CAT database not prepared', 'samplesheet missing column <X>', 'study accession already has private status'). Writes `debug-report.md` with diagnosis + fix.
 version: 1.0.0
 updated: "2026-09-12"
 triggers:
   - "debug ENA submission failure"
   - "interpret seqsubmit error"
   - "Webin CLI error"
-  - "nf-core/seqsubmit failed"
+  - "ena-submit run failed"
 ---
 
 # Debug: ENA Submission Failures
 
-> **v1.0.0.** Interpret nf-core/seqsubmit failures via the signature library and recommend a fix.
+> **v1.0.0.** Interpret native ena-webin-cli / genome_evaluation QC tool failures via the signature library and recommend a fix.
 
 ## Audience
 
@@ -25,8 +25,8 @@ This sub-skill serves two purposes:
 
 Use this skill if:
 
-- Diagnose a failing `nextflow run nf-core/seqsubmit` invocation by matching the stderr against the signature library.
-- Surface a concrete, runnable fix (e.g. reset Webin secrets, re-download the CheckM2 database, fix a samplesheet column).
+- Diagnose a failing `ena-webin-cli` invocation, or a failing genome_evaluation QC tool run (barrnap/tRNAscan-SE/CheckM2/CAT/CoverM), by matching `run.log` against the signature library.
+- Surface a concrete, runnable fix (e.g. re-export Webin env vars, re-download the CheckM2 database, fix a samplesheet column).
 
 Do NOT use this skill if:
 
@@ -59,7 +59,7 @@ This sub-skill has **5 stop points** (SP1–SP5). Each fires only when the evide
 
 | Trigger | Evidence check | Action |
 | --- | --- | --- |
-| the stderr / log does not match any of the 5+ entries in the signature library | grep against the signature library table below returns 0 matches | Ask: "The failure does not match a known signature. Pick: (A) run a short investigation loop (re-read docs-corpus, re-run with `-with-dump-hashes` etc.), (B) escalate to the user with the raw stderr, (C) abort" |
+| the stderr / log does not match any of the 5+ entries in the signature library | grep against the signature library table below returns 0 matches | Ask: "The failure does not match a known signature. Pick: (A) run a short investigation loop (re-read docs-corpus for the failing tool, re-run that one tool invocation standalone with verbose flags), (B) escalate to the user with the raw stderr, (C) abort" |
 
 **Auto-pick when**: a known signature matches. Default: emit the diagnosis from the library entry..
 
@@ -130,7 +130,7 @@ Pipeline:   ena-submit v1.0.0
 |---|---|---|---|
 | Signature match | ✅ | WEBIN_AUTH_FAILED | one of the entries in the library |
 | Recoverable vs blocked | ✅ | RECOVERABLE | non-blocked → re-run preflight or run |
-| Suggested fix | ✅ | re-set Nextflow secrets | concrete command |
+| Suggested fix | ✅ | re-export ENA_WEBIN/ENA_WEBIN_PASSWORD | concrete command |
 
 ## Recommendations
 
@@ -165,6 +165,13 @@ When this sub-skill fails or produces unexpected output, match the failure again
 | `disk full` | Less than recommended disk space | Free up disk or move `$RUN_DIR` to a larger disk. |
 | `Permission denied` | Wrong ownership | `chown -R $USER:$USER $RUN_DIR`. |
 | `no such file or directory` | Input path wrong | Verify the path with `ls -la`. |
+| `ERROR: Login failed` / `authentication failed` (WEBIN_AUTH_FAILED) from `ena-webin-cli` | Wrong or unset `ENA_WEBIN` / `ENA_WEBIN_PASSWORD`, or account not registered for the target context | Verify credentials at https://www.ebi.ac.uk/ena/submit/webin/login, re-export the env vars, re-run preflight. |
+| `manifest field ... is mandatory` from `ena-webin-cli` | Manifest is missing a required field for the `--context` (reads vs genome) | Cross-check against `docs-corpus/ena-webin-cli/README.md` and the mode's manifest table in `build/ena-submit-runner/SKILL.md`; rebuild the manifest. |
+| `study accession ... has a private status` / `is not accessible` | Referenced study/reads/assembly is private and `--is_private` (or `is_private` in params.json) was not set, or the account lacks access | Set `is_private=true` if the user's Webin account has access; otherwise the referenced data must be released first (see docs-corpus/nf-core-seqsubmit/usage.md "Data privacy"). |
+| `checkm2: database not found` / `No such file: .dmnd` | CheckM2 database not downloaded, or `--database_path` not passed | `checkm2 database --download` once, then always pass `--database_path` on subsequent runs. |
+| `CAT: could not find database/taxonomy files` | CAT database not prepared, or wrong `$CAT_DB` path | `CAT prepare --fresh --download_dir <dir>` once (large download), or point at an existing prepared DB (`tax/` + `db/` folders). |
+| `coverm: no reads mapped` / near-zero coverage | Wrong `fastq_1`/`fastq_2` pairing, or reads don't match the FASTA they claim to cover | Re-verify the samplesheet's fastq columns reference the reads that generated this assembly/MAG. |
+| `barrnap`/`tRNAscan-SE` produce empty output on a valid genome | Non-bacterial genome with default `--kingdom`/`-B` flag, or genome is fragmented below detection thresholds | Retry with the correct `--kingdom` (barrnap) or `-E` for eukaryotes (tRNAscan-SE); note this mode does not support eukaryotic/viral MAGs per usage.md limitations. |
 | `verdict: BEHIND-BY-N` from `pixi run update-check` | Upstream `github.com/cheahhl814/ena-submit` is ahead of the deployed copy | Re-deploy per AGENTS.md §4a: `rsync -a --exclude='.git' @skills/ena-submit/ ~/.pi/agent/skills/ena-submit/` then `diff -rq` to verify. The script prints the canonical fix on `BEHIND-BY-N`. |
 | `verdict: OFFLINE` / `NO-ORIGIN` from `pixi run update-check` | No network or no `origin` remote — informational, exit code 2 | Re-run when online, or `git remote add origin https://github.com/cheahhl814/ena-submit.git` if the remote is missing. |
 

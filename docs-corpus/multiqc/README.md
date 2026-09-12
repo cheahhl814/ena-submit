@@ -8,7 +8,7 @@
 
 ## Quick flags
 
-The skill invokes MultiQC via the nf-core `multiqc` module:
+`qc/ena-submit-qc` invokes MultiQC directly (no Nextflow/nf-core module involved), following the same command shape as the nf-core `multiqc` module for reference:
 
 ```
 multiqc --force <outdir/>

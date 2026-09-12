@@ -1,6 +1,6 @@
 ---
 name: ena-submit-preflight
-description: Phase 1 of ena-submit. Validates the submission samplesheet (column set per `--mode`), confirms `ENA_WEBIN` and `ENA_WEBIN_PASSWORD` Nextflow secrets are set, resolves the study accession or study-registration file, and writes `preflight.md` + `params.json` with verdict GO / GO-WITH-WARNINGS / NO-GO. Mirrors the preflight evidence pattern from nf-core/seqsubmit docs.
+description: Phase 1 of ena-submit. Validates the submission samplesheet (column set per `--mode`), confirms `ENA_WEBIN` and `ENA_WEBIN_PASSWORD` environment variables are set, confirms the native tools this run's mode needs are on PATH (ena-webin-cli always; barrnap/tRNAscan-SE/CheckM2/CAT/CoverM for mags/bins), resolves the study accession or study-registration file, and writes `preflight.md` + `params.json` with verdict GO / GO-WITH-WARNINGS / NO-GO. Mode-to-schema mapping follows the nf-core/seqsubmit docs (vendored in docs-corpus/), used here only as a specification.
 version: 1.0.0
 updated: "2026-09-12"
 triggers:
@@ -12,7 +12,7 @@ triggers:
 
 # ENA Submission Preflight
 
-> **v1.0.0.** Validate samplesheet, Webin credentials, and study metadata before invoking nf-core/seqsubmit.
+> **v1.0.0.** Validate samplesheet, Webin credentials, native tool availability, and study metadata before invoking `ena-webin-cli` directly.
 
 ## Audience
 
@@ -65,6 +65,14 @@ This sub-skill has **5 stop points** (SP1–SP5). Each fires only when the evide
 
 **Auto-pick when**: the header exactly matches the expected schema for the chosen `--mode`. Default: proceed..
 
+### SP2 — Required native tool missing from PATH
+
+| Trigger | Evidence check | Action |
+| --- | --- | --- |
+| `ena-webin-cli` is missing (any mode), or `--mode` is mags/bins and one of barrnap/tRNAscan-SE/checkm2/CAT/coverm/multiqc is missing | `command -v <tool>` loop against the mode-specific tool list | Ask: "`<tool>` is not on PATH. Pick: (A) `pixi install` to resolve it from this skill's pinned `pixi.toml`, (B) install it manually and re-run preflight, (C) abort" |
+
+**Auto-pick when**: every tool required for the chosen `--mode` resolves via `command -v`. Default: proceed.
+
 ### Operating rule
 
 > **Auto-pick when the evidence is unambiguous; ask when the agent genuinely cannot decide.** When asking, present the evidence first, then the recommendation, then 2–4 concrete options. Do not ask "what do you want?" — ask "I see X, recommend Y, which one of A/B/C?"
@@ -76,7 +84,7 @@ This skill is the **input validation (preflight)** phase of the ena-submit pipel
 ## Prerequisites
 
 - **Environment**: pixi env with the required tools.
-- **Upstream Evidence**: user-provided samplesheet + study accession + Webin credentials in Nextflow secrets..
+- **Upstream Evidence**: user-provided samplesheet + study accession + Webin credentials in the `ENA_WEBIN` / `ENA_WEBIN_PASSWORD` environment variables.
 
 ## Procedure
 
@@ -92,7 +100,7 @@ Ask once, in one question batch if possible:
 | `--input` samplesheet.csv | yes | ask |
 | `--centre_name` | yes | ask |
 | `--submission_study` accession OR `--study_metadata` file | yes (one of) | ask |
-| ENA Webin credentials | yes | `nextflow secrets set` |
+| ENA Webin credentials | yes | ask user to `export ENA_WEBIN=Webin-XXX; export ENA_WEBIN_PASSWORD=...` |
 
 ### 2. Compute evidence (always run; never skip)
 
@@ -101,6 +109,21 @@ Each numbered step produces a line in the evidence file and a column in the repo
 ```bash
 # Mode detection — read `--mode` (or derive from samplesheet header)
 MODE=$1; awk -F, 'NR==1{for(i=1;i<=NF;i++) h[i]=$i; print h[1]}' "$SAMPLESHEET"
+
+# ena-webin-cli is required for every mode
+command -v ena-webin-cli && ena-webin-cli --version
+
+# Webin credentials — plain env vars, no Nextflow secrets store involved
+[ -n "$ENA_WEBIN" ] && echo "ENA_WEBIN set (len ${#ENA_WEBIN})"
+[ -n "$ENA_WEBIN_PASSWORD" ] && echo "ENA_WEBIN_PASSWORD set (redacted)"
+
+# Mode-specific tool audit — only mags/bins need the genome_evaluation QC tools
+if [ "$MODE" = "mags" ] || [ "$MODE" = "bins" ]; then
+  for tool in barrnap tRNAscan-SE checkm2 CAT coverm; do
+    command -v "$tool" || echo "MISSING: $tool"
+  done
+  command -v multiqc || echo "MISSING: multiqc"
+fi
 ```
 
 ### 3. Write outputs
@@ -135,8 +158,11 @@ Pipeline:   ena-submit v1.0.0
 |---|---|---|---|
 | Mode resolved | ✅ | mags | one of reads|metagenomic_assemblies|mags|bins |
 | Samplesheet columns | ✅ | all required present | matches mode schema |
-| Webin secret ENA_WEBIN | ✅ | set (len 14) | starts with Webin- |
-| Webin secret ENA_WEBIN_PASSWORD | ✅ | set (redacted) | non-empty |
+| `ena-webin-cli` on PATH | ✅ | ena-webin-cli 8.x | required for every mode |
+| Webin env var ENA_WEBIN | ✅ | set (len 14) | starts with Webin- |
+| Webin env var ENA_WEBIN_PASSWORD | ✅ | set (redacted) | non-empty |
+| genome_evaluation tools on PATH (mags/bins only) | ✅ | barrnap, tRNAscan-SE, checkm2, CAT, coverm all found | required only when mode is mags/bins |
+| `multiqc` on PATH (mags/bins only) | ✅ | multiqc 1.x | required only when mode is mags/bins |
 | Study accession OR metadata file | ✅ | PRJEB12345 | accession OR existing file |
 | Output directory writable | ✅ | /path/to/outdir | writable |
 

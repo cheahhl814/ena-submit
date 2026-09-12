@@ -1,6 +1,6 @@
 ---
 name: ena-submit
-description: Agent wrapper for the nf-core/seqsubmit pipeline (v1.0.0) that submits sequence data to ENA. Orchestrates four submission modes (reads, metagenomic_assemblies, mags, bins) via Bash recipes. Does NOT re-implement the Nextflow pipeline — instead pre-validates inputs (samplesheet, Webin credentials, study accession), prepares the ENA Webin CLI context, and post-processes accession receipts. The Nextflow pipeline itself is invoked as the core executor; the agent owns the pre/post glue.
+description: Native tool-orchestration meta-skill that submits sequence data to ENA. Orchestrates four submission modes (reads, metagenomic_assemblies, mags, bins) via Bash recipes that call ena-webin-cli directly — no Nextflow, no nf-core. For mags/bins mode it runs the genome_evaluation QC tools itself (barrnap, tRNAscan-SE, CheckM2, CAT, CoverM) before building the ena-webin-cli manifest and submitting. Pre-validates inputs (samplesheet, Webin credentials, study accession) and post-processes accession receipts. The stage order and manifest formats follow the nf-core/seqsubmit spec (vendored in docs-corpus/) as a reference, but nf-core/seqsubmit itself is never invoked.
 version: 1.0.0
 updated: "2026-09-12"
 triggers:
@@ -12,13 +12,13 @@ triggers:
   - "submit metagenomic assembly to ENA"
   - "Webin CLI"
   - "ENA Webin"
-  - "run nf-core/seqsubmit"
+  - "ena-webin-cli"
   - "seqsubmit agent"
 ---
 
-# ENA Sequence Submission Agent (seqsubmit wrapper)
+# ENA Sequence Submission Agent (native ena-webin-cli orchestrator)
 
-> **v1.0.0.** Agent wrapper for the nf-core/seqsubmit pipeline (v1.0.0) — orchestrates 4 ENA submission modes (reads, metagenomic_assemblies, mags, bins) via Bash recipes. Wraps the upstream Nextflow pipeline as an external executor; pre-validates inputs and post-processes accession receipts.
+> **v1.0.0.** Native tool-orchestration meta-skill — orchestrates 4 ENA submission modes (reads, metagenomic_assemblies, mags, bins) via Bash recipes that call `ena-webin-cli` (and, for mags/bins, the genome_evaluation QC tools) directly. No Nextflow, no nf-core dependency; pre-validates inputs and post-processes accession receipts.
 
 ## Audience
 
@@ -31,14 +31,14 @@ This skill serves two purposes:
 
 Use this skill when you need to:
 
-- Submit raw sequencing reads to the European Nucleotide Archive (ENA) via the `reads` mode of nf-core/seqsubmit.
+- Submit raw sequencing reads to the European Nucleotide Archive (ENA) via `reads` mode.
 - Submit metagenomic assemblies to ENA via the `metagenomic_assemblies` mode.
 - Submit MAGs or bins to ENA via the `mags` / `bins` mode (with `genome_evaluation` QC: rRNA, tRNA, CheckM2, CAT, coverage).
 
 **Do NOT use this skill** if:
 
-- You do not have a Webin account at https://www.ebi.ac.uk/ena/submit/webin/login (the skill will refuse to proceed without ENA_WEBIN / ENA_WEBIN_PASSWORD set in Nextflow secrets).
-- You want to re-implement the Nextflow pipeline — the skill wraps the existing nf-core/seqsubmit as an external executor; it does not author its own DSL2.
+- You do not have a Webin account at https://www.ebi.ac.uk/ena/submit/webin/login (the skill will refuse to proceed without the `ENA_WEBIN` / `ENA_WEBIN_PASSWORD` environment variables set).
+- You want a Nextflow/nf-core execution engine — this skill deliberately calls `ena-webin-cli` and the QC tools directly via Bash; it does not shell out to Nextflow.
 
 ## 0. Orchestrator — detect stage, route to the right sub-skill
 

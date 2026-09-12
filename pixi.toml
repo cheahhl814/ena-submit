@@ -1,7 +1,7 @@
 [workspace]
 name = "ena-submit"
 version = "1.0.0"
-description = "Agent wrapper for the nf-core/seqsubmit pipeline (v1.0.0) — orchestrates 4 ENA submission modes (reads, metagenomic_assemblies, mags, bins) via Bash recipes. Wraps the upstream Nextflow pipeline as an external executor; pre-validates inputs and post-processes accession receipts."
+description = "Native tool-orchestration meta-skill — orchestrates 4 ENA submission modes (reads, metagenomic_assemblies, mags, bins) via Bash recipes that call ena-webin-cli (and the genome_evaluation QC tools for mags/bins) directly. No Nextflow, no nf-core dependency."
 channels = ["conda-forge", "bioconda"]
 platforms = ["linux-64", "osx-64", "osx-arm64"]
 
@@ -21,9 +21,6 @@ multiqc = "1.x"
 # updated upstream to not depend on pkg_resources.
 # setuptools = "<81"  # uncomment if CheckM is used
 
-
-# === System prerequisites (not installed via pixi; install outside the env) ===
-# nextflow (version >=25.04.0, role: pipeline executor (the agent invokes the upstream nf-core/seqsubmit pipeline)) — install via system package manager or upstream installer.
 
 [tasks]
 # Common workflows as pixi tasks

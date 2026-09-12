@@ -8,7 +8,7 @@
 
 ## Quick flags
 
-The skill invokes the nf-core `fasta_classify_catpack` subworkflow which wraps the CAT/BAT pack pipeline:
+`build/ena-submit-runner` invokes CAT/BAT directly (no Nextflow/nf-core subworkflow involved), following the same command shape as the nf-core `fasta_classify_catpack` subworkflow for reference:
 
 ```
 CAT contigs -c <contigs.fasta> -d <CAT_database/> -t <taxonomy/> -o <out_prefix>

@@ -8,7 +8,7 @@
 
 ## Quick flags
 
-The skill invokes tRNAscan-SE via the nf-core `trnascanse` module:
+`build/ena-submit-runner` invokes tRNAscan-SE directly (no Nextflow/nf-core module involved), following the same command shape as the nf-core `trnascanse` module for reference:
 
 ```
 tRNAscan-SE -B -Q <fasta> -o <out.gff> -m <out.stats>

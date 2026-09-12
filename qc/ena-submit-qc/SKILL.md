@@ -1,6 +1,6 @@
 ---
 name: ena-submit-qc
-description: Phase 3 of ena-submit. Parses the per-mode output directory (reads/ or metagenomic_assemblies/ or mags/, bins/) and `multiqc/`, collects accession numbers, MAGs/bins manifest, coverage files, and the MultiQC report. Writes `seqsubmit-report.md` (the per-submission audit report) and `qc-summary.md` (the machine-readable summary).
+description: Phase 3 of ena-submit. Parses the native run outputs — `$RUN_DIR/webin-cli/` (ena-webin-cli receipts/reports), `$RUN_DIR/qc/` (per-sample barrnap/tRNAscan-SE/CheckM2/CAT/CoverM outputs, mags/bins only), and `$RUN_DIR/multiqc/` — collects accession numbers, genome metadata, and the MultiQC report. Writes `seqsubmit-report.md` (the per-submission audit report) and `qc-summary.md` (the machine-readable summary).
 version: 1.0.0
 updated: "2026-09-12"
 triggers:
@@ -12,7 +12,7 @@ triggers:
 
 # ENA Submission QC + Accession Summary
 
-> **v1.0.0.** Aggregate the per-mode accession receipts and write the final submission report.
+> **v1.0.0.** Aggregate the ena-webin-cli receipts and genome_evaluation QC outputs from the native run, and write the final submission report.
 
 ## Audience
 
@@ -26,7 +26,7 @@ This sub-skill serves two purposes:
 Use this skill if:
 
 - Collect accession numbers per sample after a successful ENA submission.
-- Aggregate the per-mode outputs (manifest TSVs, MultiQC report, MAGs/bins metadata) into a single audit-trail report.
+- Aggregate the native run outputs (ena-webin-cli receipts, manifest TSVs, MultiQC report, MAGs/bins genome_evaluation metadata) into a single audit-trail report.
 
 Do NOT use this skill if:
 
@@ -39,8 +39,9 @@ Do NOT use this skill if:
 | Path | Source | Required? |
 | --- | --- | --- |
 | `$RUN_DIR/run-summary.md` | build/ena-submit-runner | yes |
-| `$RUN_DIR/outdir/<mode>/` | build | yes (mode-specific) |
-| `$RUN_DIR/outdir/multiqc/` | build | no (but aggregated when present) |
+| `$RUN_DIR/webin-cli/` | build/ena-submit-runner | yes (ena-webin-cli receipts/reports) |
+| `$RUN_DIR/qc/` | build/ena-submit-runner | no (mags/bins only — per-sample genome_evaluation outputs) |
+| `$RUN_DIR/multiqc/` | build/ena-submit-runner | no (but aggregated when present) |
 
 ### Outputs (produced)
 
@@ -57,11 +58,11 @@ The next phase **refuses to run** unless `$RUN_DIR/seqsubmit-report.md` overall 
 
 This sub-skill has **3 stop points** (SP1–SP3). Each fires only when the evidence is ambiguous. The format is **Evidence + Recommend + Options**. If the evidence is unambiguous, the agent auto-picks the default and proceeds silently.
 
-### SP1 — Outdir missing per-mode output
+### SP1 — Native run outputs missing expected files
 
 | Trigger | Evidence check | Action |
 | --- | --- | --- |
-| `outdir/<mode>/` is missing the expected submission-receipt files (e.g. `*_webin_cli.log`, `manifest.tsv`, `genome_metadata.tsv`) | file-glob against the mode-specific expected outputs | Ask: "The per-mode output dir is missing expected submission files. Pick: (A) the run did not actually submit (re-run with `--test_upload false`), (B) the run hit an error mid-flight (route to debug), (C) accept the partial output and report what's there" |
+| `$RUN_DIR/webin-cli/` is missing the expected receipt/report files (e.g. no receipt XML, no accession in `run.log`) | file-glob against `$RUN_DIR/webin-cli/` + grep `run.log` for a submitted accession | Ask: "The webin-cli output dir is missing expected submission files. Pick: (A) the run was a dry validate-only pass (re-run `ena-webin-cli` with `-submit` instead of `-validate`), (B) the run hit an error mid-flight (route to debug), (C) accept the partial output and report what's there" |
 
 **Auto-pick when**: all expected files are present. Default: proceed..
 
@@ -76,7 +77,7 @@ This skill is the **output (qc)** phase of the ena-submit pipeline. It computes 
 ## Prerequisites
 
 - **Environment**: pixi env with the required tools.
-- **Upstream Evidence**: run-summary.md + the per-mode outdir/ tree produced by nf-core/seqsubmit..
+- **Upstream Evidence**: `run-summary.md` + the `webin-cli/`, `qc/`, and `multiqc/` trees produced natively by `build/ena-submit-runner`.
 
 ## Procedure
 
@@ -95,8 +96,15 @@ Ask once, in one question batch if possible:
 Each numbered step produces a line in the evidence file and a column in the report.
 
 ```bash
-# Mode-specific output inventory
-ls -la $OUTDIR/$MODE/
+# Accession receipts — ena-webin-cli
+grep -i "accession" "$RUN_DIR/run.log"
+ls -la "$RUN_DIR/webin-cli/"
+
+# genome_evaluation QC outputs (mags/bins only)
+ls -la "$RUN_DIR/qc/"*/{coverage,rna/barrnap,rna/trnascanse,taxonomy,checkm2} 2>/dev/null
+
+# MultiQC report
+ls -la "$RUN_DIR/multiqc/multiqc_report.html" 2>/dev/null
 ```
 
 ### 3. Write outputs
@@ -129,11 +137,11 @@ Pipeline:   ena-submit v1.0.0
 
 | Check | Verdict | Value | Threshold |
 |---|---|---|---|
-| Per-mode output dir present | ✅ | outdir/mags/ | exists |
+| Webin-CLI output dir present | ✅ | $RUN_DIR/webin-cli/ | exists |
 | Accession receipts | ✅ | 10/10 samples have accessions | ≥ 90% of samples have non-empty accessions |
-| MAGs/bins manifest (mags/bins mode) | ✅ | genome_metadata.tsv | exists when mode is mags/bins |
-| MultiQC report | ✅ | multiqc_report.html | exists |
-| Pipeline info complete | ✅ | trace + timeline + report | all 3 present |
+| genome_evaluation QC outputs (mags/bins mode) | ✅ | genome_metadata.tsv + per-sample qc/ dirs | exists when mode is mags/bins |
+| MultiQC report | ✅ | multiqc_report.html | exists when mode is mags/bins |
+| run.log complete | ✅ | present, no unexpected truncation | exists |
 
 ## Recommendations
 
