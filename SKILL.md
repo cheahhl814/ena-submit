@@ -1,8 +1,8 @@
 ---
 name: ena-submit
 description: Native tool-orchestration meta-skill that submits sequence data to ENA. Orchestrates four submission modes (reads, metagenomic_assemblies, mags, bins) via Bash recipes that call ena-webin-cli directly — no Nextflow, no nf-core. For mags/bins mode it runs the genome_evaluation QC tools itself (barrnap, tRNAscan-SE, CheckM2, CAT, CoverM) before building the ena-webin-cli manifest and submitting. Pre-validates inputs (samplesheet, Webin credentials, study accession) and post-processes accession receipts. The stage order and manifest formats follow the nf-core/seqsubmit spec (vendored in docs-corpus/) as a reference, but nf-core/seqsubmit itself is never invoked.
-version: 1.0.0
-updated: "2026-09-12"
+version: 1.0.1
+updated: "2026-10-12"
 triggers:
   - "submit to ENA"
   - "ENA submission"
@@ -104,7 +104,7 @@ pixi run update-check
 #   NO-ORIGIN        (2)  no `origin` remote configured; informational
 ```
 
-When `BEHIND-BY-N`, the script prints the canonical fix (rsync from `@skills/ena-submit/` to `~/.pi/agent/skills/ena-submit/` per AGENTS.md §4a, then `diff -rq` to verify). When `OFFLINE`, the script still prints `local_sha` + deployed version so the user can compare by hand. The full implementation is in `bin/skill-update-check.py` (rendered from the meta-skill's `templates/bin/skill-update-check.py.j2`).
+When `BEHIND-BY-N`, the script prints the canonical fix (rsync from `@skills/ena-submit/` to the ena-submit skill install directory per AGENTS.md §4a, then `diff -rq` to verify). When `OFFLINE`, the script still prints `local_sha` + deployed version so the user can compare by hand. The full implementation is in `bin/skill-update-check.py` (rendered from the meta-skill's `templates/bin/skill-update-check.py.j2`).
 
 ### 0.4 The run command
 
@@ -189,4 +189,4 @@ After this orchestrator routes the user to a phase, the agent should explicitly 
 
 ## Provenance
 
-Built with the [bioinfo-skill-creator](https://github.com/cheahhl814/bioinfo-skill-creator) meta-skill. Pattern adopted from [BettaMt-agents](https://github.com/cheahhl814/BettaMt-agents).
+Built with the [skill-forge](https://github.com/cheahhl814/bioinfo-skill-creator) meta-skill. Pattern adopted from [BettaMt-agents](https://github.com/cheahhl814/BettaMt-agents).
